@@ -69,14 +69,7 @@
 			}
 
 			// Initialize bound values
-			if (boundX) {
-				boundXmin = boundX[0];
-				boundXmax = boundX[1];
-			}
-			if (boundY) {
-				boundYmin = boundY[0];
-				boundYmax = boundY[1];
-			}
+			setBounds(boundX, boundY);
 
 			sourceEl.addEventListener('touchstart', onDown);
 			sourceEl.addEventListener('mousedown', onDown);
@@ -112,6 +105,16 @@
 			if (typeof y === 'number') {
 				targetY = y;
 			}
+		};
+
+		/**
+   * Update the current x and y bounds
+   * @public
+   * @param {Array} boundX
+   * @param {Array} boundY
+   */
+		this.setBounds = function (boundX, boundY) {
+			setBounds(boundX, boundY);
 		};
 
 		/**
@@ -283,6 +286,20 @@
 				requestAnimFrame(updateAndRender);
 			}
 			ticking = true;
+		}
+
+		/**
+   * sets bounds data
+   */
+		function setBounds(boundX, boundY) {
+			if (boundX) {
+				boundXmin = boundX[0];
+				boundXmax = boundX[1];
+			}
+			if (boundY) {
+				boundYmin = boundY[0];
+				boundYmax = boundY[1];
+			}
 		}
 
 		/**
