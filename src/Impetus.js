@@ -8,6 +8,7 @@ export default class Impetus {
 	constructor({
 		source: sourceEl = document,
 		update: updateCallback,
+		onFinish: finishedCallback = () => {},
 		multiplier = 1,
 		friction = 0.92,
 		initialValues,
@@ -115,6 +116,13 @@ export default class Impetus {
 		 */
 		function callUpdateCallback() {
 			updateCallback.call(sourceEl, targetX, targetY);
+		}
+
+		/**
+		 * Executes the update function
+		 */
+		function callFinishedCallback() {
+			finishedCallback.call(sourceEl, targetX, targetY);
 		}
 
 		/**
@@ -344,6 +352,8 @@ export default class Impetus {
 			if ((Math.abs(decVelX) > 1 || Math.abs(decVelY) > 1) || !diff.inBounds){
 				decelerating = true;
 				requestAnimFrame(stepDecelAnim);
+			} else {
+				callFinishedCallback();
 			}
 		}
 
@@ -409,6 +419,7 @@ export default class Impetus {
 				requestAnimFrame(stepDecelAnim);
 			} else {
 				decelerating = false;
+				callFinishedCallback();
 			}
 		}
 	}

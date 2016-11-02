@@ -23,6 +23,8 @@
 		var _ref$source = _ref.source;
 		var sourceEl = _ref$source === undefined ? document : _ref$source;
 		var updateCallback = _ref.update;
+		var _ref$onFinish = _ref.onFinish;
+		var finishedCallback = _ref$onFinish === undefined ? function () {} : _ref$onFinish;
 		var _ref$multiplier = _ref.multiplier;
 		var multiplier = _ref$multiplier === undefined ? 1 : _ref$multiplier;
 		var _ref$friction = _ref.friction;
@@ -132,6 +134,13 @@
    */
 		function callUpdateCallback() {
 			updateCallback.call(sourceEl, targetX, targetY);
+		}
+
+		/**
+   * Executes the update function
+   */
+		function callFinishedCallback() {
+			finishedCallback.call(sourceEl, targetX, targetY);
 		}
 
 		/**
@@ -359,6 +368,8 @@
 			if (Math.abs(decVelX) > 1 || Math.abs(decVelY) > 1 || !diff.inBounds) {
 				decelerating = true;
 				requestAnimFrame(stepDecelAnim);
+			} else {
+				callFinishedCallback();
 			}
 		}
 
@@ -423,6 +434,7 @@
 				requestAnimFrame(stepDecelAnim);
 			} else {
 				decelerating = false;
+				callFinishedCallback();
 			}
 		}
 	}
