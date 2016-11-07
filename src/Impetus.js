@@ -60,6 +60,13 @@ export default class Impetus {
 
 
 		/**
+		 * forces impetus to stop any current action
+		 */
+    this.stop = function() {
+			cancelAnimFrame(animationFrameId);
+		}
+
+		/**
 		 * Disable movement processing
 		 * @public
 		 */
@@ -278,13 +285,6 @@ export default class Impetus {
 				requestAnimFrame(updateAndRender);
 			}
 			ticking = true;
-		}
-
-		/**
-		 * forces impetus to stop any current action
-		 */
-    function stop() {
-			cancelAnimFrame(animationFrameId);
 		}
 
 		/**

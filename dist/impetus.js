@@ -79,6 +79,13 @@
 		})();
 
 		/**
+   * forces impetus to stop any current action
+   */
+		this.stop = function () {
+			cancelAnimFrame(animationFrameId);
+		};
+
+		/**
    * Disable movement processing
    * @public
    */
@@ -296,13 +303,6 @@
 				requestAnimFrame(updateAndRender);
 			}
 			ticking = true;
-		}
-
-		/**
-   * forces impetus to stop any current action
-   */
-		function stop() {
-			cancelAnimFrame(animationFrameId);
 		}
 
 		/**
