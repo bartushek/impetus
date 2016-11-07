@@ -3,7 +3,6 @@ const stopThresholdDefault = 0.3;
 const bounceDeceleration = 0.04;
 const bounceAcceleration = 0.11;
 
-
 export default class Impetus {
 	constructor({
 		source: sourceEl = document,
@@ -25,6 +24,7 @@ export default class Impetus {
 		var paused = false;
 		var decelerating = false;
 		var trackingPoints = [];
+		var animationFrameId = null;
 
 
 		/**
@@ -281,6 +281,13 @@ export default class Impetus {
 		}
 
 		/**
+		 * forces impetus to stop any current action
+		 */
+    function stop() {
+			cancelAnimFrame(animationFrameId);
+		}
+
+		/**
 		 * sets bounds data
 		 */
 		function setBounds(boundX, boundY) {
@@ -416,7 +423,7 @@ export default class Impetus {
 
 				callUpdateCallback();
 
-				requestAnimFrame(stepDecelAnim);
+				animationFrameId = requestAnimFrame(stepDecelAnim);
 			} else {
 				decelerating = false;
 				callFinishedCallback();
@@ -430,8 +437,27 @@ export default class Impetus {
 /**
  * @see http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
  */
-const requestAnimFrame = (function(){
-	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(callback) {
-		window.setTimeout(callback, 1000 / 60);
-	};
-})();
+let requestAnimFrame = window.requestAnimationFrame;
+let cancelAnimFrame = window.cancelAnimationFrame;
+const vendors = ['webkit', 'moz'];
+
+let lastTime = 0;
+for(var x = 0; x < vendors.length && !requestAnimFrame; ++x) {
+    requestAnimFrame = window[vendors[x]+'RequestAnimationFrame'];
+    cancelAnimFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+}
+
+if (!requestAnimFrame)
+    requestAnimFrame = function(callback, element) {
+        var currTime = new Date().getTime();
+        var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+        var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+          timeToCall);
+        lastTime = currTime + timeToCall;
+        return id;
+    };
+
+if (!cancelAnimFrame)
+    cancelAnimFrame = function(id) {
+        clearTimeout(id);
+    };

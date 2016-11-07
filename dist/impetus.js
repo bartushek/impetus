@@ -46,6 +46,7 @@
 		var paused = false;
 		var decelerating = false;
 		var trackingPoints = [];
+		var animationFrameId = null;
 
 		/**
    * Initialize instance
@@ -298,6 +299,13 @@
 		}
 
 		/**
+   * forces impetus to stop any current action
+   */
+		function stop() {
+			cancelAnimFrame(animationFrameId);
+		}
+
+		/**
    * sets bounds data
    */
 		function setBounds(boundX, boundY) {
@@ -431,7 +439,7 @@
 
 				callUpdateCallback();
 
-				requestAnimFrame(stepDecelAnim);
+				animationFrameId = requestAnimFrame(stepDecelAnim);
 			} else {
 				decelerating = false;
 				callFinishedCallback();
@@ -445,9 +453,27 @@
 	;
 
 	module.exports = Impetus;
-	var requestAnimFrame = (function () {
-		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
-			window.setTimeout(callback, 1000 / 60);
-		};
-	})();
+	var requestAnimFrame = window.requestAnimationFrame;
+	var cancelAnimFrame = window.cancelAnimationFrame;
+	var vendors = ['webkit', 'moz'];
+
+	var lastTime = 0;
+	for (var x = 0; x < vendors.length && !requestAnimFrame; ++x) {
+		requestAnimFrame = window[vendors[x] + 'RequestAnimationFrame'];
+		cancelAnimFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
+	}
+
+	if (!requestAnimFrame) requestAnimFrame = function (callback, element) {
+		var currTime = new Date().getTime();
+		var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+		var id = window.setTimeout(function () {
+			callback(currTime + timeToCall);
+		}, timeToCall);
+		lastTime = currTime + timeToCall;
+		return id;
+	};
+
+	if (!cancelAnimFrame) cancelAnimFrame = function (id) {
+		clearTimeout(id);
+	};
 });
