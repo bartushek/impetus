@@ -1,23 +1,35 @@
 (function (global, factory) {
 	if (typeof define === 'function' && define.amd) {
-		define(['exports', 'module'], factory);
-	} else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
-		factory(exports, module);
+		define(['exports'], factory);
+	} else if (typeof exports !== 'undefined') {
+		factory(exports);
 	} else {
 		var mod = {
 			exports: {}
 		};
-		factory(mod.exports, mod);
+		factory(mod.exports);
 		global.Impetus = mod.exports;
 	}
-})(this, function (exports, module) {
+})(this, function (exports) {
 	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 	var stopThresholdDefault = 0.3;
 	var bounceDeceleration = 0.04;
 	var bounceAcceleration = 0.11;
+
+	var Directions = {
+		BOTH: 'both',
+		HORIZONTAL: 'horizontal',
+		VERTICAL: 'vertical'
+	};
+
+	exports.Directions = Directions;
 
 	var Impetus = function Impetus(_ref) {
 		var _ref$source = _ref.source;
@@ -34,6 +46,8 @@
 		var boundY = _ref.boundY;
 		var _ref$bounce = _ref.bounce;
 		var bounce = _ref$bounce === undefined ? true : _ref$bounce;
+		var _ref$direction = _ref.direction;
+		var direction = _ref$direction === undefined ? Directions.BOTH : _ref$direction;
 
 		_classCallCheck(this, Impetus);
 
@@ -47,6 +61,7 @@
 		var decelerating = false;
 		var trackingPoints = [];
 		var animationFrameId = null;
+		var enabled = null;
 
 		/**
    * Initialize instance
@@ -180,6 +195,7 @@
    */
 		function onDown(ev) {
 			var event = normalizeEvent(ev);
+			enabled = null;
 			if (!pointerActive && !paused) {
 				pointerActive = true;
 				decelerating = false;
@@ -206,7 +222,18 @@
 			ev.preventDefault();
 			var event = normalizeEvent(ev);
 
-			if (pointerActive && event.id === pointerId) {
+			if (enabled === null) {
+				enabled = true;
+				if (direction === Directions.HORIZONTAL) {
+					enabled = Math.abs(pointerLastX - event.x) > Math.abs(pointerLastY - event.y);
+				}
+				if (direction === Directions.VERTICAL) {
+					enabled = Math.abs(pointerLastX - event.x) < Math.abs(pointerLastY - event.y);
+				}
+			}
+
+			if (enabled && pointerActive && event.id === pointerId) {
+				ev.preventDefault();
 				pointerCurrentX = event.x;
 				pointerCurrentY = event.y;
 				addTrackingPoint(pointerLastX, pointerLastY);
@@ -452,7 +479,7 @@
   */
 	;
 
-	module.exports = Impetus;
+	exports['default'] = Impetus;
 	var requestAnimFrame = window.requestAnimationFrame;
 	var cancelAnimFrame = window.cancelAnimationFrame;
 	var vendors = ['webkit', 'moz'];

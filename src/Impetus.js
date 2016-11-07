@@ -3,6 +3,12 @@ const stopThresholdDefault = 0.3;
 const bounceDeceleration = 0.04;
 const bounceAcceleration = 0.11;
 
+export const Directions = {
+	BOTH: 'both',
+	HORIZONTAL: 'horizontal',
+	VERTICAL: 'vertical',
+};
+
 export default class Impetus {
 	constructor({
 		source: sourceEl = document,
@@ -13,7 +19,8 @@ export default class Impetus {
 		initialValues,
 		boundX,
 		boundY,
-		bounce = true
+		bounce = true,
+		direction = Directions.BOTH,
 	}) {
 		var boundXmin, boundXmax, boundYmin, boundYmax, pointerLastX, pointerLastY, pointerCurrentX, pointerCurrentY, pointerId, decVelX, decVelY;
 		var targetX = 0;
@@ -25,6 +32,7 @@ export default class Impetus {
 		var decelerating = false;
 		var trackingPoints = [];
 		var animationFrameId = null;
+		var enabled = null;
 
 
 		/**
@@ -160,6 +168,7 @@ export default class Impetus {
 		 */
 		function onDown(ev) {
 			var event = normalizeEvent(ev);
+			enabled = null;
 			if (!pointerActive && !paused) {
 				pointerActive = true;
 				decelerating = false;
@@ -186,7 +195,18 @@ export default class Impetus {
 			ev.preventDefault();
 			var event = normalizeEvent(ev);
 
-			if (pointerActive && event.id === pointerId) {
+			if (enabled === null) {
+				enabled = true;
+				if (direction === Directions.HORIZONTAL) {
+					enabled = Math.abs(pointerLastX - event.x) > Math.abs(pointerLastY - event.y)
+				}
+				if (direction === Directions.VERTICAL) {
+					enabled = Math.abs(pointerLastX - event.x) < Math.abs(pointerLastY - event.y)
+				}
+			}
+
+			if (enabled && pointerActive && event.id === pointerId) {
+				ev.preventDefault();
 				pointerCurrentX = event.x;
 				pointerCurrentY = event.y;
 				addTrackingPoint(pointerLastX, pointerLastY);
